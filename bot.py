@@ -58,7 +58,7 @@ def getNotifications():
     notifications = {}
     now = datetime.now()
 
-    posted = { link : date for link, date in posted.items() if date.date() < (now - timedelta(days=2)).date() }
+    posted = { link : date for link, date in posted.items() if date.date() > (now - timedelta(days=2)).date() }
 
     try:
         uClient = uReq(url)
