@@ -7,12 +7,14 @@ import asyncio
 from datetime import datetime, timedelta
 from time import time, sleep
 from difflib import get_close_matches
+import json
+from os.path import isfile as fexists
 
 token = "token"
 channel = 'channel id'
 url = "http://www.ice.uniwa.gr/announcements-all/"
-posted = {}
-wres = 43200 #12 hours to secs
+wres = 18000 # 5 hours to secs
+json_file_name = 'posted.json'
 
 grafeiaKathigitwn = {
     'βασιλας'       : 'Κ16.115',
@@ -54,9 +56,17 @@ Client = discord.Client()
 client = commands.Bot(command_prefix=";")
 
 def getNotifications():
-    global posted
     notifications = {}
     now = datetime.now()
+
+    posted = {}
+    if fexists(json_file_name):
+        with open(json_file_name) as json_file:
+            posted = json.load(json_file)
+
+    # convert strings to datetime objects
+    for key in posted:
+        posted[key] = datetime.strptime(posted[key], '%d/%m/%Y')
 
     posted = { link : date for link, date in posted.items() if date.date() > (now - timedelta(days=2)).date() }
 
@@ -78,7 +88,15 @@ def getNotifications():
             break
         posted[link] = date
         notifications[link] = title
+
+    # convert datetime objects to strings to dump it to json file
+    for key in posted:
+        posted[key] = posted[key].strftime('%d/%m/%Y')
+    with open(json_file_name, 'w') as json_file:
+        json.dump(posted, json_file)
+
     return notifications
+
 
 def findProgramma(programma):
     try:
