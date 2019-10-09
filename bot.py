@@ -112,7 +112,7 @@ def findProgramma(programma):
         title = anakoinwsi.find('div', {'class': 'single_post_title'}).contents[0].strip()
         anakoinwsi = str(anakoinwsi)
         link = anakoinwsi[anakoinwsi.find('http'):anakoinwsi.find('">')].replace('amp;', '')
-        if title.lower().startswith(programma):
+        if programma in title.lower():
             return title, link
     return None, None
 
