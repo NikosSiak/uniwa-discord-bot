@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 from time import time, sleep
 import json
 from os.path import isfile as fexists
-from urllib.request import urlopen as uReq
 
 import discord
 from discord.ext import commands
+import aiohttp
 from bs4 import BeautifulSoup as soup
 
 token = "token"
@@ -53,8 +53,9 @@ grafeiaKathigitwn = {
 }
 
 client = commands.Bot(command_prefix=";")
+session = aiohttp.ClientSession(loop=client.loop)
 
-def getNotifications():
+async def getNotifications():
     notifications = {}
     now = datetime.now()
 
@@ -69,13 +70,12 @@ def getNotifications():
 
     posted = { link : date for link, date in posted.items() if date.date() > (now - timedelta(days=2)).date() }
 
-    try:
-        uClient = uReq(url)
-        page_html = uClient.read()
-        uClient.close()
-    except:
-        print("site is down")
-        return {}
+
+    async with session.get(url) as r:
+        if r.status != 200:
+            return {}
+        page_html = await r.text()
+
     page_soup = soup(page_html, "html.parser")
     anakoinwseis = page_soup.find_all('div', {'class': 'col-lg-12 col-md-12 col-sm-12 col-xs-12 single_post_row'})
     for anakoinwsi in anakoinwseis:
@@ -97,14 +97,12 @@ def getNotifications():
     return notifications
 
 
-def findProgramma(programma):
-    try:
-        uClient = uReq(url)
-        page_html = uClient.read()
-        uClient.close()
-    except:
-        print("page is down")
-        return None, None
+async def findProgramma(programma):
+    async with session.get(url) as r:
+        if r.status != 200:
+            return None, None
+        page_html = await r.text()
+
     page_soup = soup(page_html, "html.parser")
     anakoinwseis = page_soup.find_all('div', {'class': 'col-lg-12 col-md-12 col-sm-12 col-xs-12 single_post_row'})
     for anakoinwsi in anakoinwseis:
@@ -128,7 +126,7 @@ async def on_message(message):
         args = message.content.split(" ")
         if " ".join(args[1:3]) == 'προγραμμα μαθηματων' or " ".join(args[1:3]) == 'πρόγραμμα μαθημάτων'\
                 or " ".join(args[1:3]) == 'programma mathimatwn':
-            title, link = findProgramma('ωρολόγιο πρόγραμμα')
+            title, link = await findProgramma('ωρολόγιο πρόγραμμα')
             if title:
                 embed = discord.Embed()
                 embed.add_field(name=title, value=link, inline=False)
@@ -137,7 +135,7 @@ async def on_message(message):
                 await author.send('Site is down')
         elif " ".join(args[1:3]) == 'προγραμμα εξεταστικης' or " ".join(args[1:3]) == 'πρόγραμμα εξεταστικής' \
                 or " ".join(args[1:3]) == 'programma eksetastikis':
-            title, link = findProgramma('πρόγραμμα εξεταστικής')
+            title, link = await findProgramma('πρόγραμμα εξεταστικής')
             if title:
                 embed = discord.Embed()
                 embed.add_field(name=title, value=link, inline=False)
@@ -163,7 +161,7 @@ async def post():
     await client.wait_until_ready()
     while not client.is_closed():
         startTime = datetime.now()
-        anakoinwseis = getNotifications()
+        anakoinwseis = await getNotifications()
         for key in anakoinwseis.keys():
             embed = discord.Embed()
             embed.add_field(name=anakoinwseis[key], value=key, inline=False)
