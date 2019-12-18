@@ -1,14 +1,14 @@
-from bs4 import BeautifulSoup as soup
-from urllib.request import urlopen as uReq
-import discord
-from discord.ext.commands import Bot
-from discord.ext import commands
+from difflib import get_close_matches
 import asyncio
 from datetime import datetime, timedelta
 from time import time, sleep
-from difflib import get_close_matches
 import json
 from os.path import isfile as fexists
+from urllib.request import urlopen as uReq
+
+import discord
+from discord.ext import commands
+from bs4 import BeautifulSoup as soup
 
 token = "token"
 channel = 'channel id'
@@ -52,7 +52,6 @@ grafeiaKathigitwn = {
     'παυλιδης'      : 'Κ16.ΚΔΕ',
 }
 
-Client = discord.Client()
 client = commands.Bot(command_prefix=";")
 
 def getNotifications():
@@ -125,7 +124,7 @@ async def on_ready():
 async def on_message(message):
     message.content = message.content.lower()
     if message.content.startswith(";βρες") or message.content.startswith(";vres"):
-        userID = message.author
+        author = message.author
         args = message.content.split(" ")
         if " ".join(args[1:3]) == 'προγραμμα μαθηματων' or " ".join(args[1:3]) == 'πρόγραμμα μαθημάτων'\
                 or " ".join(args[1:3]) == 'programma mathimatwn':
@@ -133,42 +132,43 @@ async def on_message(message):
             if title:
                 embed = discord.Embed()
                 embed.add_field(name=title, value=link, inline=False)
-                await client.send_message(userID, embed=embed)
+                await author.send(embed=embed)
             else:
-                await client.send_message(userID, 'Site is down')
+                await author.send('Site is down')
         elif " ".join(args[1:3]) == 'προγραμμα εξεταστικης' or " ".join(args[1:3]) == 'πρόγραμμα εξεταστικής' \
                 or " ".join(args[1:3]) == 'programma eksetastikis':
             title, link = findProgramma('πρόγραμμα εξεταστικής')
             if title:
                 embed = discord.Embed()
                 embed.add_field(name=title, value=link, inline=False)
-                await client.send_message(userID, embed=embed)
+                await author.send(embed=embed)
             else:
-                await client.send_message(userID, 'Site is down')
+                await author.send('Site is down')
         elif args[1] == 'γραφειο' or args[1] == 'γραφείο' or args[1] == 'grafeio':
             matches = get_close_matches(args[2], grafeiaKathigitwn)
             if matches:
-                await client.send_message(userID, matches[0] + ': ' + grafeiaKathigitwn[matches[0]])
+                await author.send(matches[0] + ': ' + grafeiaKathigitwn[matches[0]])
             else:
-                await client.send_message(userID, 'Δεν ξερω που ειναι το γραφειο του ' + args[2])
+                await author.send('Δεν ξερω που ειναι το γραφειο του ' + args[2])
     elif message.content == ";help":
-        userID = message.author
+        author = message.author
         msg = '''***command list***
         ;βρες προγραμμα μαθηματων
         ;βρες προγραμμα εξεταστικης
         ;βρες γραφειο ονομα_καθηγητη'''
-        await client.send_message(userID, msg)
+        await author.send(msg)
 
 
 async def post():
     await client.wait_until_ready()
-    while not client.is_closed:
+    while not client.is_closed():
         startTime = datetime.now()
         anakoinwseis = getNotifications()
         for key in anakoinwseis.keys():
             embed = discord.Embed()
             embed.add_field(name=anakoinwseis[key], value=key, inline=False)
-            await client.send_message(client.get_channel(channel), '@everyone', embed=embed)
+            chn = client.get_channel(channel)
+            await chn.send('@everyone', embed=embed)
         await asyncio.sleep(wres + (startTime - datetime.now()).total_seconds())
 
 
