@@ -10,8 +10,8 @@ from discord.ext import commands
 import aiohttp
 from bs4 import BeautifulSoup as soup
 
-token = "token"
-channel = 'channel id'
+token = ""
+channel = "" # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
 url = "http://www.ice.uniwa.gr/announcements-all/"
 wres = 18000 # 5 hours to secs
 json_file_name = 'posted.json'
@@ -53,7 +53,9 @@ grafeiaKathigitwn = {
 }
 
 client = commands.Bot(command_prefix=";")
-session = aiohttp.ClientSession(loop=client.loop)
+
+async def create_aiohttp_session():
+    client.aiohttp_session = aiohttp.ClientSession(loop=client.loop)
 
 async def getNotifications():
     notifications = {}
@@ -71,7 +73,7 @@ async def getNotifications():
     posted = { link : date for link, date in posted.items() if date.date() > (now - timedelta(days=2)).date() }
 
 
-    async with session.get(url) as r:
+    async with client.aiohttp_session.get(url) as r:
         if r.status != 200:
             return {}
         page_html = await r.text()
@@ -93,12 +95,11 @@ async def getNotifications():
         posted[key] = posted[key].strftime('%d/%m/%Y')
     with open(json_file_name, 'w') as json_file:
         json.dump(posted, json_file)
-
     return notifications
 
 
 async def findProgramma(programma):
-    async with session.get(url) as r:
+    async with client.aiohttp_session.get(url) as r:
         if r.status != 200:
             return None, None
         page_html = await r.text()
@@ -159,6 +160,7 @@ async def on_message(message):
 
 async def post():
     await client.wait_until_ready()
+    await create_aiohttp_session()
     while not client.is_closed():
         startTime = datetime.now()
         anakoinwseis = await getNotifications()
