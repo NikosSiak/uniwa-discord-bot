@@ -10,8 +10,8 @@ from discord.ext import commands
 import aiohttp
 from bs4 import BeautifulSoup as soup
 
-token = open('TOKEN.txt', 'r').readline().strip()
-channel = int(open('CHANNEL_ID.txt', 'r').readline().strip()) # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
+token = open('data/TOKEN.txt', 'r').readline().strip()
+channel = int(open('data/CHANNEL_ID.txt', 'r').readline().strip()) # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
 url = "http://www.ice.uniwa.gr/announcements-all/"
 wres = 18000 # 5 hours to secs
 json_file_name = 'posted.json'
@@ -68,7 +68,7 @@ def get_digits_from_link(link):
     return digits
 
 async def getNotifications():
-    with open('last_digits.txt', 'r', encoding="utf-8") as f:
+    with open('data/last_digits.txt', 'r', encoding="utf-8") as f:
         last_digits = f.readline().strip()
 
     async with client.aiohttp_session.get(url) as r:
@@ -81,7 +81,7 @@ async def getNotifications():
 
     to_send = []
     first_digits = get_digits_from_link(announcements[0]['data-url'])
-    with open('last_digits.txt', 'w', encoding="utf-8") as f:
+    with open('data/last_digits.txt', 'w', encoding="utf-8") as f:
         f.write(first_digits)
 
     for announcement in announcements:
@@ -170,7 +170,7 @@ async def post():
             embed.add_field(name=announcement[0], value=announcement[1], inline=False)
 
             chn = client.get_channel(channel)
-            await chn.send('everyone', embed=embed)
+            await chn.send('@everyone', embed=embed)
         await asyncio.sleep(wres + (startTime - datetime.now()).total_seconds())
 
 
