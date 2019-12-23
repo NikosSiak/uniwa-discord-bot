@@ -10,8 +10,8 @@ from discord.ext import commands
 import aiohttp
 from bs4 import BeautifulSoup as soup
 
-token = ""
-channel = "" # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
+token = open('TOKEN.txt', 'r').readline()
+channel = open('CHANNEL_ID.txt', 'r').readline() # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
 url = "http://www.ice.uniwa.gr/announcements-all/"
 wres = 18000 # 5 hours to secs
 json_file_name = 'posted.json'
