@@ -2,7 +2,6 @@ from difflib import get_close_matches
 import asyncio
 from datetime import datetime, timedelta
 from time import time, sleep
-import json
 from os.path import isfile as fexists
 
 import discord
@@ -14,7 +13,6 @@ token = open('data/TOKEN.txt', 'r').readline().strip()
 channel = int(open('data/CHANNEL_ID.txt', 'r').readline().strip()) # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
 url = "http://www.ice.uniwa.gr/announcements-all/"
 wres = 18000 # 5 hours to secs
-json_file_name = 'posted.json'
 
 grafeiaKathigitwn = {
     'βασιλας'       : 'Κ16.115',
@@ -77,7 +75,7 @@ async def getNotifications():
         page_html = await r.text()
 
     page_soup = soup(page_html, "html.parser")
-    announcements = page_soup.find_all('div', {'class': 'col-lg-12 col-md-12 col-sm-12 col-xs-12 single_post_row'})
+    announcements = page_soup.find_all(class_="single_post_row")
 
     to_send = []
     first_digits = get_digits_from_link(announcements[0]['data-url'])
