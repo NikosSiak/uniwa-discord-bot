@@ -2,7 +2,6 @@ from difflib import get_close_matches
 import asyncio
 from datetime import datetime, timedelta
 from time import time, sleep
-import json
 from os.path import isfile as fexists
 
 import discord
@@ -10,11 +9,10 @@ from discord.ext import commands
 import aiohttp
 from bs4 import BeautifulSoup as soup
 
-token = ""
-channel = "" # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
+token = open('data/TOKEN.txt', 'r').readline().strip()
+channel = int(open('data/CHANNEL_ID.txt', 'r').readline().strip()) # Στο discord.py v1+ πρέπει όλα τα ids να είναι int και όχι str
 url = "http://www.ice.uniwa.gr/announcements-all/"
 wres = 18000 # 5 hours to secs
-json_file_name = 'posted.json'
 
 grafeiaKathigitwn = {
     'βασιλας'       : 'Κ16.115',
@@ -57,45 +55,45 @@ client = commands.Bot(command_prefix=";")
 async def create_aiohttp_session():
     client.aiohttp_session = aiohttp.ClientSession(loop=client.loop)
 
+def get_digits_from_link(link):
+    digits = ""
+    for l in link[::-1]:
+        if l.isdigit():
+            digits += l
+        else:
+            break
+    digits = digits[::-1]
+    return digits
+
 async def getNotifications():
-    notifications = {}
-    now = datetime.now()
-
-    posted = {}
-    if fexists(json_file_name):
-        with open(json_file_name) as json_file:
-            posted = json.load(json_file)
-
-    # convert strings to datetime objects
-    for key in posted:
-        posted[key] = datetime.strptime(posted[key], '%d/%m/%Y')
-
-    posted = { link : date for link, date in posted.items() if date.date() > (now - timedelta(days=2)).date() }
-
+    with open('data/last_digits.txt', 'r', encoding="utf-8") as f:
+        last_digits = f.readline().strip()
 
     async with client.aiohttp_session.get(url) as r:
         if r.status != 200:
-            return {}
+            return []
         page_html = await r.text()
 
     page_soup = soup(page_html, "html.parser")
-    anakoinwseis = page_soup.find_all('div', {'class': 'col-lg-12 col-md-12 col-sm-12 col-xs-12 single_post_row'})
-    for anakoinwsi in anakoinwseis:
-        date = datetime.strptime(anakoinwsi.find('div', {'class': 'single_post_date'}).contents[0].strip(), '%d/%m/%Y')
-        title = anakoinwsi.find('div', {'class': 'single_post_title'}).contents[0].strip()
-        anakoinwsi = str(anakoinwsi)
-        link = anakoinwsi[anakoinwsi.find('http'):anakoinwsi.find('">')].replace('amp;', '')
-        if date.date() < (now - timedelta(seconds=wres)).date() or link in posted:
-            break
-        posted[link] = date
-        notifications[link] = title
+    announcements = page_soup.find_all(class_="single_post_row")
 
-    # convert datetime objects to strings to dump it to json file
-    for key in posted:
-        posted[key] = posted[key].strftime('%d/%m/%Y')
-    with open(json_file_name, 'w') as json_file:
-        json.dump(posted, json_file)
-    return notifications
+    to_send = []
+    first_digits = get_digits_from_link(announcements[0]['data-url'])
+    with open('data/last_digits.txt', 'w', encoding="utf-8") as f:
+        f.write(first_digits)
+
+    for announcement in announcements:
+        title = announcement.find(class_="single_post_title").contents[0].strip()
+        link = announcement['data-url']
+
+        digits = get_digits_from_link(link)
+
+        if digits != last_digits:
+            to_send.append([title, link])
+        else:
+            break
+
+    return to_send
 
 
 async def findProgramma(programma):
@@ -163,10 +161,12 @@ async def post():
     await create_aiohttp_session()
     while not client.is_closed():
         startTime = datetime.now()
-        anakoinwseis = await getNotifications()
-        for key in anakoinwseis.keys():
+        announcements = await getNotifications()
+
+        for announcement in announcements:
             embed = discord.Embed()
-            embed.add_field(name=anakoinwseis[key], value=key, inline=False)
+            embed.add_field(name=announcement[0], value=announcement[1], inline=False)
+
             chn = client.get_channel(channel)
             await chn.send('@everyone', embed=embed)
         await asyncio.sleep(wres + (startTime - datetime.now()).total_seconds())
