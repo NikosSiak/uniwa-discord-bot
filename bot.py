@@ -51,6 +51,7 @@ grafeiaKathigitwn = {
 }
 
 client = commands.Bot(command_prefix=";")
+client.remove_command('help')
 
 async def create_aiohttp_session():
     client.aiohttp_session = aiohttp.ClientSession(loop=client.loop)
@@ -117,43 +118,45 @@ async def findProgramma(programma):
 async def on_ready():
     print("Bot is online")
 
-@client.event
-async def on_message(message):
-    message.content = message.content.lower()
-    if message.content.startswith(";βρες") or message.content.startswith(";vres"):
-        author = message.author
-        args = message.content.split(" ")
-        if " ".join(args[1:3]) == 'προγραμμα μαθηματων' or " ".join(args[1:3]) == 'πρόγραμμα μαθημάτων'\
-                or " ".join(args[1:3]) == 'programma mathimatwn':
-            title, link = await findProgramma('ωρολόγιο πρόγραμμα')
-            if title:
-                embed = discord.Embed()
-                embed.add_field(name=title, value=link, inline=False)
-                await author.send(embed=embed)
-            else:
-                await author.send('Site is down')
-        elif " ".join(args[1:3]) == 'προγραμμα εξεταστικης' or " ".join(args[1:3]) == 'πρόγραμμα εξεταστικής' \
-                or " ".join(args[1:3]) == 'programma eksetastikis':
-            title, link = await findProgramma('πρόγραμμα εξεταστικής')
-            if title:
-                embed = discord.Embed()
-                embed.add_field(name=title, value=link, inline=False)
-                await author.send(embed=embed)
-            else:
-                await author.send('Site is down')
-        elif args[1] == 'γραφειο' or args[1] == 'γραφείο' or args[1] == 'grafeio':
-            matches = get_close_matches(args[2], grafeiaKathigitwn)
-            if matches:
-                await author.send(matches[0] + ': ' + grafeiaKathigitwn[matches[0]])
-            else:
-                await author.send('Δεν ξερω που ειναι το γραφειο του ' + args[2])
-    elif message.content == ";help":
-        author = message.author
-        msg = '''***command list***
+
+@client.command(aliases=['πρόγραμμα', 'προγραμμα', 'programma'])
+async def program(ctx: commands.Context, arg):
+    arg = arg.lower()
+    if arg in ['μαθηματων', 'μαθημάτων', 'mathimatwn']:
+        title, link = await findProgramma('ωρολόγιο πρόγραμμα')
+    elif arg in ['εξεταστικης', 'εξεταστικής', 'eksetastikis']:
+        title, link = await findProgramma('πρόγραμμα εξεταστικής')
+
+    if title:
+        embed = discord.Embed()
+        embed.add_field(name=title, value=link, inline=False)
+        await ctx.author.send(embed=embed)
+    else:
+        await ctx.author.send('Site is down')
+
+
+@client.command(aliases=['γραφείο', 'γραφειο', 'grafeio'])
+async def office(ctx: commands.Context, name):
+    matches = get_close_matches(name, grafeiaKathigitwn)
+    if matches:
+        await ctx.author.send(matches[0] + ': ' + grafeiaKathigitwn[matches[0]])
+    else:
+        await ctx.author.send('Δεν ξερω που ειναι το γραφειο του ' + name)
+
+
+@client.command()
+async def help(ctx: commands.Context):
+    msg = '''***command list***
         ;βρες προγραμμα μαθηματων
         ;βρες προγραμμα εξεταστικης
         ;βρες γραφειο ονομα_καθηγητη'''
-        await author.send(msg)
+    await ctx.author.send(msg)
+
+
+@client.event
+async def on_command_error(ctx: commands.Context, error, pass_context=True):
+    if isinstance(error, commands.CommandNotFound):
+        await help.invoke(ctx)
 
 
 async def post():
