@@ -147,9 +147,9 @@ async def office(ctx: commands.Context, name):
 @client.command()
 async def help(ctx: commands.Context):
     msg = '''***command list***
-        ;βρες προγραμμα μαθηματων
-        ;βρες προγραμμα εξεταστικης
-        ;βρες γραφειο ονομα_καθηγητη'''
+        ;προγραμμα μαθηματων
+        ;προγραμμα εξεταστικης
+        ;γραφειο ονομα_καθηγητη'''
     await ctx.author.send(msg)
 
 
