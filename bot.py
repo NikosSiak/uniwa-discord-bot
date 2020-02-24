@@ -166,12 +166,15 @@ async def post():
         startTime = datetime.now()
         announcements = await getNotifications()
 
+        if len(announcements) > 0:
+            chn = client.get_channel(channel)
+            await chn.send(f"{announcements} νέ{'ες' if len(announcements) > 1 else 'α'} ανακοινώσεις @everyone")
         for announcement in announcements:
             embed = discord.Embed()
             embed.add_field(name=announcement[0], value=announcement[1], inline=False)
 
-            chn = client.get_channel(channel)
-            await chn.send('@everyone', embed=embed)
+            await chn.send(embed=embed)
+
         await asyncio.sleep(wres + (startTime - datetime.now()).total_seconds())
 
 
