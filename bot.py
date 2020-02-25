@@ -177,7 +177,8 @@ async def post():
 
         if len(announcements) > 0:
             chn = client.get_channel(channel)
-            await chn.send(f"{announcements} νέ{'ες' if len(announcements) > 1 else 'α'} ανακοινώσεις @everyone")
+            await chn.send(f"{len(announcements)} νέ{'ες' if len(announcements) > 1 else 'α'}" +
+                f"{'ανακοινώσεις' if len(announcements) > 1 else 'ανακοίνωση'} @everyone")
 
         for announcement in announcements:
             embed = discord.Embed()
