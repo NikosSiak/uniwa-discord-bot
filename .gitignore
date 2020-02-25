@@ -3,3 +3,7 @@ TOKEN.txt
 Pipfile*
 .vscode
 posted.json
+
+pyproject.toml
+poetry.lock
+data/last_digits.txt
