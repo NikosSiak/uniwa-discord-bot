@@ -66,9 +66,17 @@ def get_digits_from_link(link):
     digits = digits[::-1]
     return digits
 
+def update_digits(digits: str, old_digits: list):
+    # Rotate the list
+    old_digits.append(old_digits.pop(0))
+    # Replace last digit with new
+    old_digits[-1] = digits
+    with open('data/last_digits.txt', 'w') as f:
+        f.write("\n".join(old_digits))
+
 async def getNotifications():
     with open('data/last_digits.txt', 'r', encoding="utf-8") as f:
-        last_digits = f.readline().strip()
+        last_digits = [f.readline().strip() for _ in range(5)]
 
     async with client.aiohttp_session.get(url) as r:
         if r.status != 200:
@@ -79,9 +87,7 @@ async def getNotifications():
     announcements = page_soup.find_all(class_="single_post_row")
 
     to_send = []
-    first_digits = get_digits_from_link(announcements[0]['data-url'])
-    with open('data/last_digits.txt', 'w', encoding="utf-8") as f:
-        f.write(first_digits)
+    latest_digits = get_digits_from_link(announcements[0]['data-url'])
 
     for announcement in announcements:
         title = announcement.find(class_="single_post_title").contents[0].strip()
@@ -89,10 +95,13 @@ async def getNotifications():
 
         digits = get_digits_from_link(link)
 
-        if digits != last_digits:
+        if digits not in last_digits:
             to_send.append([title, link])
         else:
             break
+
+    if latest_digits not in last_digits:
+        update_digits(latest_digits, last_digits)
 
     return to_send
 
@@ -169,6 +178,7 @@ async def post():
         if len(announcements) > 0:
             chn = client.get_channel(channel)
             await chn.send(f"{announcements} νέ{'ες' if len(announcements) > 1 else 'α'} ανακοινώσεις @everyone")
+
         for announcement in announcements:
             embed = discord.Embed()
             embed.add_field(name=announcement[0], value=announcement[1], inline=False)
