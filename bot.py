@@ -137,8 +137,7 @@ async def program(ctx: commands.Context, arg):
         title, link = await findProgramma('πρόγραμμα εξεταστικής')
 
     if title:
-        embed = discord.Embed()
-        embed.add_field(name=title, value=link, inline=False)
+        embed = discord.Embed(title=title, description=link, color=0x239fcf)
         await ctx.author.send(embed=embed)
     else:
         await ctx.author.send('Site is down')
@@ -177,12 +176,11 @@ async def post():
 
         if len(announcements) > 0:
             chn = client.get_channel(channel)
-            await chn.send(f"{len(announcements)} νέ{'ες' if len(announcements) > 1 else 'α'}" +
+            await chn.send(f"{len(announcements)} νέ{'ες ' if len(announcements) > 1 else 'α '}" +
                 f"{'ανακοινώσεις' if len(announcements) > 1 else 'ανακοίνωση'} @everyone")
 
         for announcement in announcements:
-            embed = discord.Embed()
-            embed.add_field(name=announcement[0], value=announcement[1], inline=False)
+            embed = discord.Embed(title=announcement[0], description=announcement[1], color=0x239fcf)
 
             await chn.send(embed=embed)
 

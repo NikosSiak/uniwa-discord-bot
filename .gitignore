@@ -7,3 +7,5 @@ posted.json
 pyproject.toml
 poetry.lock
 data/last_digits.txt
+
+venv
