@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+from constants import AOC_JOIN
 
 class AdventOfCode(commands.Cog, name="Set Up"):
     def __init__(self, bot):
@@ -25,9 +26,8 @@ class AdventOfCode(commands.Cog, name="Set Up"):
     @adventofcode.command(brief="Get the code for our private leaderboard")
     async def join(self, ctx: commands.Context):
         """join"""
-        join_code = "498817-112b533b"
         await ctx.author.send(f"Go to https://adventofcode.com/2020/leaderboard/private "
-                              f"and join with our code: `{join_code}`")
+                              f"and join with our code: `{AOC_JOIN}`")
 
 
 def setup(bot):
