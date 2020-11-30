@@ -30,6 +30,7 @@ for cog in os.listdir("./cogs"):
         except Exception as e:
             print(f"{cog} can not be loaded:")
             raise e
+bot.load_extension("jishaku")
 
 bot.loop.run_until_complete(create_aiohttp_session())
 bot.run(TOKEN)
