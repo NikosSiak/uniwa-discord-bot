@@ -29,6 +29,11 @@ class AdventOfCode(commands.Cog, name="Set Up"):
         await ctx.author.send(f"Go to https://adventofcode.com/2020/leaderboard/private "
                               f"and join with our code: `{AOC_JOIN}`")
 
+    @adventofcode.command(aliases=["lb", "board"], brief="Get a link for out leaderboard")
+    async def leaderboard(self, ctx: commands.Context):
+        await ctx.send("See our leaderboard here: "
+                       "https://adventofcode.com/2020/leaderboard/private/view/498817")
+
 
 def setup(bot):
     bot.add_cog(AdventOfCode(bot))
