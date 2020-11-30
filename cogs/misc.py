@@ -7,7 +7,7 @@ class Misc(commands.Cog):
         self.bot: commands.Bot = bot
 
     @commands.command(brief="See the profile picture of a user")
-    async def pfp(self, ctx: commands.Context, member: discord.Member):
+    async def pfp(self, ctx: commands.Context, member: discord.Member = None):
         """pfp (member)"""
         member = member or ctx.author
         await ctx.send(member.avatar_url)
