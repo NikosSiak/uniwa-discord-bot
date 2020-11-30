@@ -1,11 +1,9 @@
-CHANNEL_ID.txt
-TOKEN.txt
 Pipfile*
 .vscode
-posted.json
-
+.idea
+data
+__pycache__
 pyproject.toml
 poetry.lock
-data/last_digits.txt
 
 venv
