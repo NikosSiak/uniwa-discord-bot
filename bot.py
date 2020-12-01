@@ -7,6 +7,7 @@ import aiohttp
 TOKEN = open('data/TOKEN.txt', 'r').readline().strip()
 
 intents = discord.Intents.default()  # even default is more than we actually need
+intents.members = True  # For AoC
 bot = commands.Bot(command_prefix=";", intents=intents, owner_ids=[420338564354801664, 185725754821050368])
 bot.remove_command('help')
 

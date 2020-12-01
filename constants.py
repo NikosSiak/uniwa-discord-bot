@@ -37,4 +37,7 @@ OFFICES = {
 HOURS = 18000  # 5 hours to secs
 ANNOUNCE_CHN_ID = int(open('data/CHANNEL_ID.txt', 'r').readline().strip())
 URL = "http://www.ice.uniwa.gr/announcements-all/"
+
 AOC_JOIN = open('data/aoc_join.txt', 'r').readline().strip()
+AOC_ID = AOC_JOIN.split("-")[0]
+AOC_SESSION = open("data/aoc_session.txt", "r").readline().strip()
