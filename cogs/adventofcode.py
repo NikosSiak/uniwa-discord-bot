@@ -64,7 +64,9 @@ class AdventOfCode(commands.Cog, name="Set Up"):
             await ctx.send("Available subcommands:\n"
                            "`about`\n"
                            "`join`\n"
-                           "`leaderboard`\n")
+                           "`leaderboard`\n"
+                           "`claim`\n"
+                           "`verify`\n")
 
     @adventofcode.command(brief="Get info about the Advent of Code")
     async def about(self, ctx: commands.Context):
