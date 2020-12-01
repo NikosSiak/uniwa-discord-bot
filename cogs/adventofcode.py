@@ -97,6 +97,9 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
         if ctx.author.id in self.users:
             await ctx.send("You have already claimed an AoC account.")
             return
+        if aoc_id in [user["aoc_id"] for user in self.users.values()]:
+            await ctx.send("This id has already been claimed")
+            return
 
         og_name = ctx.author.display_name
         if aoc_id not in self.lb:
