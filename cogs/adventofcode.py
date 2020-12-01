@@ -45,8 +45,7 @@ class AdventOfCode(commands.Cog, name="Set Up"):
         await self.bot.wait_until_ready()
 
     async def update_users(self):
-        # guild = self.bot.get_guild(502466330432110592)
-        guild = self.bot.get_guild(669328482857385985)
+        guild = self.bot.get_guild(502466330432110592)
         if guild is None:
             return
 
