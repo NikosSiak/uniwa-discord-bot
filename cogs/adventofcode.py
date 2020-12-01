@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 from constants import AOC_JOIN, AOC_ID, AOC_SESSION
 
 
-class AdventOfCode(commands.Cog, name="Set Up"):
+class AdventOfCode(commands.Cog, name="Advent of Code"):
     def __init__(self, bot):
         self.bot = bot
         self.lb = {}
@@ -52,7 +52,7 @@ class AdventOfCode(commands.Cog, name="Set Up"):
         for mem_id, user in self.users.items():
             aoc_id = user["aoc_id"]
             og_name = user["og_name"]
-            stars = self.lb[aoc_id]
+            stars = self.lb[aoc_id]["stars"]
             member = guild.get_member(int(mem_id))
             await member.edit(nick=f"{og_name} ⭐{stars}")
 
