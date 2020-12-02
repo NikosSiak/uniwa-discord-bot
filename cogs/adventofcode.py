@@ -110,6 +110,7 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
         self.users[str(ctx.author.id)] = {"aoc_id": aoc_id, "og_name": og_name}
 
         await ctx.author.edit(nick=f"{og_name} ⭐{stars}")
+        await ctx.message.add_reaction("👍")
 
     @adventofcode.command(brief="Verify that the stars in the name of a user are correct")
     async def verify(self, ctx: commands.Context, member: discord.Member = None):
@@ -135,6 +136,18 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
             await ctx.send("The error has been fixed and the stars are correct now")
         else:
             await ctx.send("The stars are good")
+
+    @adventofcode.command(brief="Unclaim an id and remove the stars from your name")
+    async def unclaim(self, ctx: commands.Context):
+        """unclaim"""
+        if str(ctx.author.id) not in self.users:
+            await ctx.send("You haven't claimed an id")
+            return
+
+        og_name = self.users[str(ctx.author.id)]
+        self.users.pop(str(ctx.author.id))
+        await ctx.author.edit(nick=og_name)
+        await ctx.send("Your name won't get updated anymore")
 
 
 def setup(bot):
