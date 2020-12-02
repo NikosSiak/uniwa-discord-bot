@@ -56,16 +56,17 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
             member = guild.get_member(int(mem_id))
             await member.edit(nick=f"{og_name} ⭐{stars}")
 
-    @commands.group(name="adventofcode", aliases=["aoc"])
+    @commands.group(name="adventofcode", aliases=["aoc"], brief="Advent of Code related commands")
     async def adventofcode(self, ctx: commands.Context):
-        """All of the Advent of Code commands."""
+        """adventofcode"""
         if not ctx.invoked_subcommand:
             await ctx.send("Available subcommands:\n"
                            "`about`\n"
                            "`join`\n"
                            "`leaderboard`\n"
                            "`claim`\n"
-                           "`verify`\n")
+                           "`verify`\n"
+                           "`unclaim`\n")
 
     @adventofcode.command(brief="Get info about the Advent of Code")
     async def about(self, ctx: commands.Context):
@@ -84,6 +85,7 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
 
     @adventofcode.command(aliases=["lb", "board"], brief="Get a link for out leaderboard")
     async def leaderboard(self, ctx: commands.Context):
+        """leaderboard"""
         await ctx.send("See our leaderboard here: "
                        "https://adventofcode.com/2020/leaderboard/private/view/498817")
 
@@ -110,6 +112,7 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
         self.users[str(ctx.author.id)] = {"aoc_id": aoc_id, "og_name": og_name}
 
         await ctx.author.edit(nick=f"{og_name} ⭐{stars}")
+        await ctx.message.add_reaction("👍")
 
     @adventofcode.command(brief="Verify that the stars in the name of a user are correct")
     async def verify(self, ctx: commands.Context, member: discord.Member = None):
@@ -135,6 +138,18 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
             await ctx.send("The error has been fixed and the stars are correct now")
         else:
             await ctx.send("The stars are good")
+
+    @adventofcode.command(brief="Unclaim an id and remove the stars from your name")
+    async def unclaim(self, ctx: commands.Context):
+        """unclaim"""
+        if str(ctx.author.id) not in self.users:
+            await ctx.send("You haven't claimed an id")
+            return
+
+        og_name = self.users[str(ctx.author.id)]["og_name"]
+        self.users.pop(str(ctx.author.id))
+        await ctx.author.edit(nick=og_name)
+        await ctx.send("Your name won't get updated anymore")
 
 
 def setup(bot):
