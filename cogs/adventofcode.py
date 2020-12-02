@@ -146,7 +146,7 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
             await ctx.send("You haven't claimed an id")
             return
 
-        og_name = self.users[str(ctx.author.id)]
+        og_name = self.users[str(ctx.author.id)]["og_name"]
         self.users.pop(str(ctx.author.id))
         await ctx.author.edit(nick=og_name)
         await ctx.send("Your name won't get updated anymore")
