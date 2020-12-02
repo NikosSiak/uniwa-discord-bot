@@ -56,16 +56,17 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
             member = guild.get_member(int(mem_id))
             await member.edit(nick=f"{og_name} ⭐{stars}")
 
-    @commands.group(name="adventofcode", aliases=["aoc"])
+    @commands.group(name="adventofcode", aliases=["aoc"], brief="Advent of Code related commands")
     async def adventofcode(self, ctx: commands.Context):
-        """All of the Advent of Code commands."""
+        """adventofcode"""
         if not ctx.invoked_subcommand:
             await ctx.send("Available subcommands:\n"
                            "`about`\n"
                            "`join`\n"
                            "`leaderboard`\n"
                            "`claim`\n"
-                           "`verify`\n")
+                           "`verify`\n"
+                           "`unclaim`\n")
 
     @adventofcode.command(brief="Get info about the Advent of Code")
     async def about(self, ctx: commands.Context):
@@ -84,6 +85,7 @@ class AdventOfCode(commands.Cog, name="Advent of Code"):
 
     @adventofcode.command(aliases=["lb", "board"], brief="Get a link for out leaderboard")
     async def leaderboard(self, ctx: commands.Context):
+        """leaderboard"""
         await ctx.send("See our leaderboard here: "
                        "https://adventofcode.com/2020/leaderboard/private/view/498817")
 
